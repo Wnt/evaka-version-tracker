@@ -6,7 +6,7 @@ This plan breaks down the implementation into incremental, testable steps. Each 
 *   Node.js (v18+) installed.
 *   Git initialized.
 
-## Step 1: Project Skeleton & Testing Infrastructure
+## Step 1: Project Skeleton & Testing Infrastructure ✅ DONE
 Initialize a TypeScript project with Jest for testing and Nock for HTTP mocking.
 
 *   **Actions**:
@@ -17,6 +17,7 @@ Initialize a TypeScript project with Jest for testing and Nock for HTTP mocking.
     *   Configure `jest.config.js`.
 *   **Verification**:
     *   Run `npm test` on a sample test file to confirm the test harness works.
+*   **Status**: Completed - All dependencies installed, configs created, sample test passing.
 
 ## Step 2: Configuration & Data Models
 Define the static configuration for the 12 eVaka instances and the necessary TypeScript interfaces.
