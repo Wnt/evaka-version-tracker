@@ -1,7 +1,7 @@
 import { cleanCommitMessage } from '../../src/utils/message-cleaner';
 
 describe('cleanCommitMessage', () => {
-  describe('merge PR pattern', () => {
+  describe('merge PR pattern with title', () => {
     it('should extract PR title from merge commit', () => {
       const message = 'Merge pull request #8499 from espoon-voltti/add-placement-type\n\nLisätään sijoitusmuoto EO-poissaoloraportille';
       expect(cleanCommitMessage(message)).toBe('Lisätään sijoitusmuoto EO-poissaoloraportille');
@@ -15,6 +15,23 @@ describe('cleanCommitMessage', () => {
     it('should handle PR title with nested dependency update pattern', () => {
       const message = 'Merge pull request #8504 from espoon-voltti/renovate/cryptography\n\nUpdate dependency cryptography to v46.0.5';
       expect(cleanCommitMessage(message)).toBe('bump: cryptography v46.0.5');
+    });
+  });
+
+  describe('merge PR pattern without title', () => {
+    it('should handle dependabot submodule merge without title', () => {
+      const message = 'Merge pull request #1994 from Tampere/dependabot/submodules/evaka-9c18d07';
+      expect(cleanCommitMessage(message)).toBe('bump: evaka (→ 9c18d07)');
+    });
+
+    it('should convert branch name to readable text', () => {
+      const message = 'Merge pull request #8394 from espoon-voltti/decision-grouping-and-acceptance';
+      expect(cleanCommitMessage(message)).toBe('decision grouping and acceptance');
+    });
+
+    it('should handle branch with slashes', () => {
+      const message = 'Merge pull request #100 from org/feature/new-thing';
+      expect(cleanCommitMessage(message)).toBe('feature new thing');
     });
   });
 
