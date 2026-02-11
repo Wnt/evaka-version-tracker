@@ -103,11 +103,11 @@ Create the entry point that iterates over all instances.
     *   Run `npx ts-node src/index.ts` with `DRY_RUN=true` env var (need to implement dry run logic to skip DD send) to see logs in console.
 *   **Status**: Completed - src/index.ts created with DRY_RUN support, Promise.allSettled for parallel processing, error handling per instance, and summary reporting. TypeScript compiles cleanly. All 24 tests still passing.
 
-## Step 8: End-to-End Test Suite (Offline)
+## Step 8: End-to-End Test Suite (Offline) ✅ DONE
 Create a comprehensive test that verifies the whole flow without hitting real APIs.
 
 *   **Actions**:
-    *   Create `tests/e2e/monitor.spec.ts`.
+    *   Create `tests/e2e/monitor.test.ts`.
     *   Use `nock` to set up a "simulation":
         *   Mock Status API for all 12 domains.
         *   Mock GitHub API for the specific commits returned by status mocks.
@@ -116,6 +116,13 @@ Create a comprehensive test that verifies the whole flow without hitting real AP
     *   Assert that 12 POST requests were made to Datadog with the correct correlated data.
 *   **Verification**:
     *   Run `npm test tests/e2e`.
+*   **Status**: Completed - tests/e2e/monitor.test.ts created with 5 comprehensive tests:
+    1. Process all 12 instances and send events to Datadog
+    2. Verify correct data for Core instance (Espoo)
+    3. Verify correct data for Wrapper instance (Tampere)
+    4. Continue processing when one instance fails
+    5. Correctly report success count
+    All 29 tests passing (24 existing + 5 new E2E).
 
 ## Step 9: GitHub Action Workflow
 Prepare the deployment file.
