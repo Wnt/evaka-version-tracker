@@ -59,7 +59,7 @@ Implement the logic to fetch commit details and submodule hashes.
     *   Run: `npm test`.
 *   **Status**: Completed - src/api/github.ts and tests/api/github.test.ts created. All 12 tests passing (7 GitHub tests + 5 existing).
 
-## Step 5: Logic Orchestration (Single Instance)
+## Step 5: Logic Orchestration (Single Instance) ✅ DONE
 Combine the pieces to resolve the full version info for a single instance (both wrapper and core).
 
 *   **Actions**:
@@ -76,6 +76,7 @@ Combine the pieces to resolve the full version info for a single instance (both 
     *   Test case: Espoo (Core only) -> 2 calls (Status, Commit).
     *   Test case: Tampere (Wrapper) -> 4 calls (Status, Wrapper Commit, Submodule, Core Commit).
     *   Run: `npm test`.
+*   **Status**: Completed - src/service/resolver.ts and tests/service/resolver.test.ts created. All 19 tests passing (7 resolver tests + 7 GitHub tests + 3 status tests + 2 sample tests).
 
 ## Step 6: Datadog Integration
 Implement the client to send events to Datadog.
