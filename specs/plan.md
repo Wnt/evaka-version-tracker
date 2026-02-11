@@ -30,7 +30,7 @@ Define the static configuration for the 12 eVaka instances and the necessary Typ
     *   Run: `npx ts-node src/verify-config.ts` -> Expect output "12 instances loaded".
 *   **Status**: Completed - types.ts, config.ts, and verify-config.ts created. Verification passed: "12 instances loaded".
 
-## Step 3: Instance Status Fetcher
+## Step 3: Instance Status Fetcher ✅ DONE
 Implement the logic to query the `/api/citizen/auth/status` endpoint.
 
 *   **Actions**:
@@ -41,6 +41,7 @@ Implement the logic to query the `/api/citizen/auth/status` endpoint.
     *   Use `nock` to intercept `https://espoonvarhaiskasvatus.fi/api/citizen/auth/status`.
     *   Mock response: `{"apiVersion": "test-sha-123"}`.
     *   Run: `npm test` -> Expect pass.
+*   **Status**: Completed - src/api/status.ts and tests/api/status.test.ts created. All 5 tests passing.
 
 ## Step 4: GitHub API Client
 Implement the logic to fetch commit details and submodule hashes.
