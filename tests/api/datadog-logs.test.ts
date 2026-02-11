@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { sendVersionLog, buildLogEntry, formatAge } from '../../src/api/datadog-logs';
+import { sendVersionLog, buildLogEntry, formatAge, getAgeDays } from '../../src/api/datadog-logs';
 import { VersionInfo } from '../../src/types';
 
 describe('Datadog Logs API', () => {
@@ -62,6 +62,20 @@ describe('Datadog Logs API', () => {
       expect(entry.core_message).toBe('fix: Bug fix in core');
       expect(entry.core_author).toBe('core-dev');
       expect(entry.core_age).toBeDefined();
+      expect(typeof entry.custom_age_days).toBe('number');
+      expect(typeof entry.core_age_days).toBe('number');
+    });
+  });
+
+  describe('getAgeDays', () => {
+    it('should return 0 for today', () => {
+      const date = new Date().toISOString();
+      expect(getAgeDays(date)).toBe(0);
+    });
+
+    it('should return correct days', () => {
+      const date = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
+      expect(getAgeDays(date)).toBe(5);
     });
   });
 

@@ -15,12 +15,21 @@ export interface DatadogLogEntry {
   custom_message: string;
   custom_author: string;
   custom_age: string;
+  custom_age_days: number;
   core_repo: string;
   core_commit: string;
   core_date: string;
   core_message: string;
   core_author: string;
   core_age: string;
+  core_age_days: number;
+}
+
+export function getAgeDays(dateString: string): number {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
 }
 
 export function formatAge(dateString: string): string {
@@ -58,12 +67,14 @@ export function buildLogEntry(versionInfo: VersionInfo): DatadogLogEntry {
     custom_message: customization.message,
     custom_author: customization.author,
     custom_age: formatAge(customization.date),
+    custom_age_days: getAgeDays(customization.date),
     core_repo: 'espoon-voltti/evaka',
     core_commit: core.sha.substring(0, 7),
     core_date: core.date,
     core_message: core.message,
     core_author: core.author,
     core_age: formatAge(core.date),
+    core_age_days: getAgeDays(core.date),
   };
 }
 
