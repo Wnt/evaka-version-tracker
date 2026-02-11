@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { sendVersionLog, buildLogEntry } from '../../src/api/datadog-logs';
+import { sendVersionLog, buildLogEntry, formatAge } from '../../src/api/datadog-logs';
 import { VersionInfo } from '../../src/types';
 
 describe('Datadog Logs API', () => {
@@ -55,11 +55,45 @@ describe('Datadog Logs API', () => {
       expect(entry.custom_date).toBe('2026-02-10T12:00:00Z');
       expect(entry.custom_message).toBe('feat: Add new feature');
       expect(entry.custom_author).toBe('developer');
+      expect(entry.custom_age).toBeDefined();
       expect(entry.core_repo).toBe('espoon-voltti/evaka');
       expect(entry.core_commit).toBe('def7890');
       expect(entry.core_date).toBe('2026-02-09T10:00:00Z');
       expect(entry.core_message).toBe('fix: Bug fix in core');
       expect(entry.core_author).toBe('core-dev');
+      expect(entry.core_age).toBeDefined();
+    });
+  });
+
+  describe('formatAge', () => {
+    it('should format minutes correctly', () => {
+      const date = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+      expect(formatAge(date)).toBe('30 mins');
+    });
+
+    it('should format hours correctly', () => {
+      const date = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString();
+      expect(formatAge(date)).toBe('5 hours');
+    });
+
+    it('should format days correctly', () => {
+      const date = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+      expect(formatAge(date)).toBe('3 days');
+    });
+
+    it('should format weeks correctly', () => {
+      const date = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+      expect(formatAge(date)).toBe('2 weeks');
+    });
+
+    it('should format months correctly', () => {
+      const date = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+      expect(formatAge(date)).toBe('2 months');
+    });
+
+    it('should handle singular form', () => {
+      const date = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString();
+      expect(formatAge(date)).toBe('1 hour');
     });
   });
 

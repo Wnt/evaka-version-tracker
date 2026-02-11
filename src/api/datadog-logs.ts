@@ -14,11 +14,31 @@ export interface DatadogLogEntry {
   custom_date: string;
   custom_message: string;
   custom_author: string;
+  custom_age: string;
   core_repo: string;
   core_commit: string;
   core_date: string;
   core_message: string;
   core_author: string;
+  core_age: string;
+}
+
+export function formatAge(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  
+  const minutes = Math.floor(diffMs / (1000 * 60));
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  
+  if (months >= 1) return `${months} month${months > 1 ? 's' : ''}`;
+  if (weeks >= 1) return `${weeks} week${weeks > 1 ? 's' : ''}`;
+  if (days >= 1) return `${days} day${days > 1 ? 's' : ''}`;
+  if (hours >= 1) return `${hours} hour${hours > 1 ? 's' : ''}`;
+  return `${minutes} min${minutes !== 1 ? 's' : ''}`;
 }
 
 export function buildLogEntry(versionInfo: VersionInfo): DatadogLogEntry {
@@ -37,11 +57,13 @@ export function buildLogEntry(versionInfo: VersionInfo): DatadogLogEntry {
     custom_date: customization.date,
     custom_message: customization.message,
     custom_author: customization.author,
+    custom_age: formatAge(customization.date),
     core_repo: 'espoon-voltti/evaka',
     core_commit: core.sha.substring(0, 7),
     core_date: core.date,
     core_message: core.message,
     core_author: core.author,
+    core_age: formatAge(core.date),
   };
 }
 

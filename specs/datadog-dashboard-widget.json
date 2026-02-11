@@ -1,0 +1,90 @@
+{
+    "title": "eVaka Version Monitor",
+    "type": "query_table",
+    "requests": [
+        {
+            "queries": [
+                {
+                    "data_source": "logs",
+                    "name": "query1",
+                    "search": {
+                        "query": "source:evaka-monitor"
+                    },
+                    "indexes": [
+                        "*"
+                    ],
+                    "compute": {
+                        "aggregation": "count"
+                    },
+                    "group_by": [
+                        {
+                            "facet": "@instance_name",
+                            "limit": 20,
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            }
+                        },
+                        {
+                            "facet": "@custom_commit",
+                            "limit": 1,
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            }
+                        },
+                        {
+                            "facet": "@custom_age",
+                            "limit": 1,
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            }
+                        },
+                        {
+                            "facet": "@custom_message",
+                            "limit": 1,
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            }
+                        },
+                        {
+                            "facet": "@core_commit",
+                            "limit": 1,
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            }
+                        },
+                        {
+                            "facet": "@core_age",
+                            "limit": 1,
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            }
+                        },
+                        {
+                            "facet": "@core_message",
+                            "limit": 1,
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            }
+                        }
+                    ],
+                    "storage": "hot"
+                }
+            ],
+            "response_format": "scalar",
+            "formulas": [
+                {
+                    "alias": "Count",
+                    "formula": "query1"
+                }
+            ]
+        }
+    ],
+    "has_search_bar": "auto"
+}
