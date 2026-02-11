@@ -32,10 +32,12 @@ export function checkRateLimit(headers: Record<string, string>): void {
   }
 }
 
+const DEFAULT_BASE_DELAY = process.env.NODE_ENV === 'test' ? 1 : 1000;
+
 export async function withRetry<T>(
   fn: () => Promise<T>,
   maxRetries = 3,
-  baseDelayMs = 1000
+  baseDelayMs = DEFAULT_BASE_DELAY
 ): Promise<T> {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -59,7 +61,9 @@ export async function withRetry<T>(
       }
 
       const delay = baseDelayMs * Math.pow(2, attempt);
-      console.warn(`Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`);
+      if (process.env.NODE_ENV !== 'test') {
+        console.warn(`Retry attempt ${attempt + 1}/${maxRetries} after ${delay}ms`);
+      }
       await new Promise((r) => setTimeout(r, delay));
     }
   }
