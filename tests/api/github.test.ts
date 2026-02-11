@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { getCommitDetails, getSubmoduleHash } from '../../src/api/github';
+import { getCommitDetails, getSubmoduleHash, extractPRNumber, getPRTitle } from '../../src/api/github';
 
 describe('GitHub API Client', () => {
   beforeEach(() => {
@@ -8,6 +8,36 @@ describe('GitHub API Client', () => {
 
   afterAll(() => {
     nock.restore();
+  });
+
+  describe('extractPRNumber', () => {
+    it('should extract PR number from merge commit message', () => {
+      expect(extractPRNumber('Merge pull request #8394 from espoon-voltti/feature')).toBe(8394);
+    });
+
+    it('should return null for non-merge commits', () => {
+      expect(extractPRNumber('feat: Add new feature')).toBeNull();
+    });
+  });
+
+  describe('getPRTitle', () => {
+    it('should fetch PR title from GitHub API', async () => {
+      nock('https://api.github.com')
+        .get('/repos/espoon-voltti/evaka/pulls/8394')
+        .reply(200, { title: 'Kuntalaisen päätössivun uusi design' });
+
+      const title = await getPRTitle('espoon-voltti/evaka', 8394);
+      expect(title).toBe('Kuntalaisen päätössivun uusi design');
+    });
+
+    it('should return null on API failure', async () => {
+      nock('https://api.github.com')
+        .get('/repos/test/repo/pulls/999')
+        .reply(404, { message: 'Not Found' });
+
+      const title = await getPRTitle('test/repo', 999);
+      expect(title).toBeNull();
+    });
   });
 
   describe('getCommitDetails', () => {
@@ -34,6 +64,54 @@ describe('GitHub API Client', () => {
         date: '2024-01-15T10:30:00Z',
         author: 'testuser',
       });
+    });
+
+    it('should fetch PR title for merge commits', async () => {
+      const mockCommit = {
+        sha: 'abc123def456',
+        commit: {
+          message: 'Merge pull request #8394 from espoon-voltti/feature\n\nSome description',
+          author: { name: 'Test Author' },
+          committer: { date: '2024-01-15T10:30:00Z' },
+        },
+        author: { login: 'testuser' },
+      };
+
+      nock('https://api.github.com')
+        .get('/repos/espoon-voltti/evaka/commits/abc123def456')
+        .reply(200, mockCommit);
+
+      nock('https://api.github.com')
+        .get('/repos/espoon-voltti/evaka/pulls/8394')
+        .reply(200, { title: 'Kuntalaisen päätössivun uusi design' });
+
+      const result = await getCommitDetails('espoon-voltti/evaka', 'abc123def456');
+
+      expect(result.message).toBe('Kuntalaisen päätössivun uusi design');
+    });
+
+    it('should fall back to commit message if PR lookup fails', async () => {
+      const mockCommit = {
+        sha: 'abc123def456',
+        commit: {
+          message: 'Merge pull request #9999 from espoon-voltti/feature',
+          author: { name: 'Test Author' },
+          committer: { date: '2024-01-15T10:30:00Z' },
+        },
+        author: { login: 'testuser' },
+      };
+
+      nock('https://api.github.com')
+        .get('/repos/espoon-voltti/evaka/commits/abc123def456')
+        .reply(200, mockCommit);
+
+      nock('https://api.github.com')
+        .get('/repos/espoon-voltti/evaka/pulls/9999')
+        .reply(404, { message: 'Not Found' });
+
+      const result = await getCommitDetails('espoon-voltti/evaka', 'abc123def456');
+
+      expect(result.message).toBe('Merge pull request #9999 from espoon-voltti/feature');
     });
 
     it('should use commit author name when GitHub login is not available', async () => {

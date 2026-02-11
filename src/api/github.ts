@@ -11,6 +11,35 @@ function getAuthHeaders(): Record<string, string> {
   return {};
 }
 
+/**
+ * Extracts PR number from a merge commit message.
+ * Returns null if not a merge commit.
+ */
+export function extractPRNumber(message: string): number | null {
+  const match = message.match(/^Merge pull request #(\d+) from/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+/**
+ * Fetches the PR title from GitHub API.
+ */
+export async function getPRTitle(repo: string, prNumber: number): Promise<string | null> {
+  try {
+    const url = `${GITHUB_API_BASE}/repos/${repo}/pulls/${prNumber}`;
+    const response = await axios.get(url, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+        ...getAuthHeaders(),
+      },
+      timeout: 10000,
+    });
+    return response.data.title;
+  } catch {
+    // If PR lookup fails, return null (will fall back to commit message)
+    return null;
+  }
+}
+
 export async function getCommitDetails(repo: string, sha: string): Promise<CommitDetails> {
   const url = `${GITHUB_API_BASE}/repos/${repo}/commits/${sha}`;
   const response = await axios.get(url, {
@@ -22,9 +51,23 @@ export async function getCommitDetails(repo: string, sha: string): Promise<Commi
   });
 
   const { commit, author } = response.data;
+  const fullMessage = commit.message;
+  const firstLine = fullMessage.split('\n')[0];
+  
+  // Check if this is a merge commit and try to get PR title
+  const prNumber = extractPRNumber(firstLine);
+  let message = firstLine;
+  
+  if (prNumber) {
+    const prTitle = await getPRTitle(repo, prNumber);
+    if (prTitle) {
+      message = prTitle;
+    }
+  }
+  
   return {
     sha: response.data.sha,
-    message: commit.message.split('\n')[0], // First line only
+    message,
     date: commit.committer.date,
     author: author?.login || commit.author.name,
   };
