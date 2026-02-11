@@ -43,7 +43,7 @@ Implement the logic to query the `/api/citizen/auth/status` endpoint.
     *   Run: `npm test` -> Expect pass.
 *   **Status**: Completed - src/api/status.ts and tests/api/status.test.ts created. All 5 tests passing.
 
-## Step 4: GitHub API Client
+## Step 4: GitHub API Client ✅ DONE
 Implement the logic to fetch commit details and submodule hashes.
 
 *   **Actions**:
@@ -57,6 +57,7 @@ Implement the logic to fetch commit details and submodule hashes.
     *   Test case 1: Fetch commit details.
     *   Test case 2: Fetch submodule hash (mock the JSON response with `{ "sha": "..." }`).
     *   Run: `npm test`.
+*   **Status**: Completed - src/api/github.ts and tests/api/github.test.ts created. All 12 tests passing (7 GitHub tests + 5 existing).
 
 ## Step 5: Logic Orchestration (Single Instance)
 Combine the pieces to resolve the full version info for a single instance (both wrapper and core).
