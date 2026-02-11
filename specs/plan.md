@@ -78,7 +78,7 @@ Combine the pieces to resolve the full version info for a single instance (both 
     *   Run: `npm test`.
 *   **Status**: Completed - src/service/resolver.ts and tests/service/resolver.test.ts created. All 19 tests passing (7 resolver tests + 7 GitHub tests + 3 status tests + 2 sample tests).
 
-## Step 6: Datadog Integration
+## Step 6: Datadog Integration ✅ DONE
 Implement the client to send events to Datadog.
 
 *   **Actions**:
@@ -90,6 +90,7 @@ Implement the client to send events to Datadog.
     *   Mock axios/datadog-client.
     *   Verify the payload structure matches Datadog API requirements.
     *   Run: `npm test`.
+*   **Status**: Completed - src/api/datadog.ts and tests/api/datadog.test.ts created. All 24 tests passing (5 Datadog tests + 7 resolver tests + 7 GitHub tests + 3 status tests + 2 sample tests).
 
 ## Step 7: Main Application Loop
 Create the entry point that iterates over all instances.
