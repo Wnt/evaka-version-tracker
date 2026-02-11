@@ -5,11 +5,20 @@ A monitoring tool that tracks deployed versions of [eVaka](https://github.com/es
 ## Overview
 
 This tool monitors 12 eVaka instances, fetching:
-- The currently deployed version from each instance's public API
+- The currently deployed version from each instance's public API (`/api/citizen/auth/status`)
 - Commit details (message, date, author) from GitHub
 - For wrapper repositories, the linked core eVaka version via submodule resolution
 
 Data is sent to Datadog as structured logs for visualization in dashboard table widgets.
+
+## How It Works
+
+1. **Fetch Status**: Query each instance's `/api/citizen/auth/status` endpoint to get the deployed commit hash (`apiVersion`)
+2. **Resolve Customization**: Fetch commit details from the instance's GitHub repository
+3. **Resolve Core Version**:
+   - **Core instances** (e.g., Espoo): The deployed commit *is* the core version
+   - **Wrapper instances**: Query the `evaka` submodule at the deployed commit to get the linked core commit hash
+4. **Send to Datadog**: Push structured logs with all version information
 
 ## Monitored Instances
 
@@ -162,13 +171,30 @@ on:
 
 To visualize eVaka version data in a table format:
 
-### Step 1: Create a New Dashboard
+### Quick Setup (Import Widget)
+
+A pre-configured table widget is included in [`datadog-dashboard-widget.json`](./datadog-dashboard-widget.json). To use it:
+
+1. Create a new dashboard in Datadog (**Dashboards** → **New Dashboard**)
+2. Click **Add Widgets** and select **Table**
+3. Click the **JSON** tab in the widget editor
+4. Paste the contents of `datadog-dashboard-widget.json`
+5. Click **Save**
+
+The widget displays all instances sorted by core version age, with color-coded indicators:
+- 🟢 Green: ≤2 days old
+- 🟡 Yellow: ≤7 days old  
+- 🔴 Red: >7 days old
+
+### Manual Setup
+
+### Manual Setup
 
 1. Go to **Dashboards** → **New Dashboard** in Datadog
 2. Choose **New Dashboard** (not Screenboard)
 3. Name it "eVaka Version Monitor"
 
-### Step 2: Add a Table Widget
+### Add a Table Widget
 
 1. Click **Add Widgets** and select **Table**
 2. Configure the data source:
@@ -177,7 +203,7 @@ To visualize eVaka version data in a table format:
 3. Set the grouping:
    - **Group By**: `@instance_name`
 
-### Step 3: Configure Columns
+### Configure Columns
 
 Add the following columns to display version information:
 
@@ -190,7 +216,7 @@ Add the following columns to display version information:
 | Core Commit | `@core_commit` |
 | Core Date | `@core_date` |
 
-### Step 4: Save the Dashboard
+### Save the Dashboard
 
 1. Adjust column widths as needed
 2. Click **Save** to preserve your dashboard configuration
@@ -241,7 +267,7 @@ The monitor sends structured logs to Datadog with the following attributes:
 │   ├── types.ts             # TypeScript interfaces
 │   └── index.ts             # Main entry point
 ├── tests/                   # Test suites
-├── specs/                   # Specification documents
+├── datadog-dashboard-widget.json  # Pre-configured Datadog table widget
 └── .github/workflows/       # GitHub Actions workflow
 ```
 
