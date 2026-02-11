@@ -8,6 +8,7 @@ export interface DatadogLogEntry {
   hostname: string;
   service: string;
   message: string;
+  log_timestamp: number;
   instance_name: string;
   instance_domain: string;
   custom_repo: string;
@@ -60,6 +61,7 @@ export function buildLogEntry(versionInfo: VersionInfo): DatadogLogEntry {
     hostname: 'github-actions',
     service: 'evaka-version-monitor',
     message: `Version info for ${instance.name}`,
+    log_timestamp: Date.now(),
     instance_name: instance.name,
     instance_domain: instance.domain,
     custom_repo: instance.repository,

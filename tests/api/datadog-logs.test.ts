@@ -48,6 +48,8 @@ describe('Datadog Logs API', () => {
       expect(entry.hostname).toBe('github-actions');
       expect(entry.service).toBe('evaka-version-monitor');
       expect(entry.message).toBe('Version info for Tampere');
+      expect(entry.log_timestamp).toBeDefined();
+      expect(typeof entry.log_timestamp).toBe('number');
       expect(entry.instance_name).toBe('Tampere');
       expect(entry.instance_domain).toBe('varhaiskasvatus.tampere.fi');
       expect(entry.custom_repo).toBe('Tampere/trevaka');

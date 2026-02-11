@@ -31,7 +31,8 @@
                             "facet": "@custom_commit",
                             "limit": 1,
                             "sort": {
-                                "aggregation": "count",
+                                "aggregation": "max",
+                                "metric": "@log_timestamp",
                                 "order": "desc"
                             }
                         },
@@ -39,7 +40,8 @@
                             "facet": "@custom_age",
                             "limit": 1,
                             "sort": {
-                                "aggregation": "count",
+                                "aggregation": "max",
+                                "metric": "@log_timestamp",
                                 "order": "desc"
                             }
                         },
@@ -47,7 +49,8 @@
                             "facet": "@custom_message",
                             "limit": 1,
                             "sort": {
-                                "aggregation": "count",
+                                "aggregation": "max",
+                                "metric": "@log_timestamp",
                                 "order": "desc"
                             }
                         },
@@ -55,7 +58,8 @@
                             "facet": "@core_commit",
                             "limit": 1,
                             "sort": {
-                                "aggregation": "count",
+                                "aggregation": "max",
+                                "metric": "@log_timestamp",
                                 "order": "desc"
                             }
                         },
@@ -63,7 +67,8 @@
                             "facet": "@core_age",
                             "limit": 1,
                             "sort": {
-                                "aggregation": "count",
+                                "aggregation": "max",
+                                "metric": "@log_timestamp",
                                 "order": "desc"
                             }
                         },
@@ -71,7 +76,8 @@
                             "facet": "@core_message",
                             "limit": 1,
                             "sort": {
-                                "aggregation": "count",
+                                "aggregation": "max",
+                                "metric": "@log_timestamp",
                                 "order": "desc"
                             }
                         }
