@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { VersionInfo } from '../types';
 import { cleanCommitMessage } from '../utils/message-cleaner';
+import { withRetry } from '../utils/retry';
 
 export interface DatadogLogEntry {
   ddsource: string;
@@ -92,10 +93,12 @@ export async function sendVersionLog(versionInfo: VersionInfo): Promise<void> {
   const logEntry = buildLogEntry(versionInfo);
   const url = `https://http-intake.logs.${ddSite}/api/v2/logs`;
 
-  await axios.post(url, [logEntry], {
-    headers: {
-      'Content-Type': 'application/json',
-      'DD-API-KEY': apiKey,
-    },
-  });
+  await withRetry(() =>
+    axios.post(url, [logEntry], {
+      headers: {
+        'Content-Type': 'application/json',
+        'DD-API-KEY': apiKey,
+      },
+    })
+  );
 }

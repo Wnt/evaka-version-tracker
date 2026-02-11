@@ -229,12 +229,14 @@ The monitor sends structured logs to Datadog with the following attributes:
 ```
 ├── src/
 │   ├── api/
-│   │   ├── datadog.ts       # Datadog event submission (legacy)
 │   │   ├── datadog-logs.ts  # Datadog logs submission
 │   │   ├── github.ts        # GitHub API client
 │   │   └── status.ts        # Instance version fetcher
 │   ├── service/
 │   │   └── resolver.ts      # Version resolution logic
+│   ├── utils/
+│   │   ├── message-cleaner.ts  # Commit message cleaning
+│   │   └── retry.ts         # Retry utility with exponential backoff
 │   ├── config.ts            # Instance configuration
 │   ├── types.ts             # TypeScript interfaces
 │   └── index.ts             # Main entry point

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { CommitDetails } from '../types';
+import { withRetry, checkRateLimit } from '../utils/retry';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
@@ -26,13 +27,16 @@ export function extractPRNumber(message: string): number | null {
 export async function getPRTitle(repo: string, prNumber: number): Promise<string | null> {
   try {
     const url = `${GITHUB_API_BASE}/repos/${repo}/pulls/${prNumber}`;
-    const response = await axios.get(url, {
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-        ...getAuthHeaders(),
-      },
-      timeout: 10000,
-    });
+    const response = await withRetry(() =>
+      axios.get(url, {
+        headers: {
+          Accept: 'application/vnd.github.v3+json',
+          ...getAuthHeaders(),
+        },
+        timeout: 10000,
+      })
+    );
+    checkRateLimit(response.headers as Record<string, string>);
     return response.data.title;
   } catch {
     // If PR lookup fails, return null (will fall back to commit message)
@@ -42,13 +46,16 @@ export async function getPRTitle(repo: string, prNumber: number): Promise<string
 
 export async function getCommitDetails(repo: string, sha: string): Promise<CommitDetails> {
   const url = `${GITHUB_API_BASE}/repos/${repo}/commits/${sha}`;
-  const response = await axios.get(url, {
-    headers: {
-      Accept: 'application/vnd.github.v3+json',
-      ...getAuthHeaders(),
-    },
-    timeout: 10000,
-  });
+  const response = await withRetry(() =>
+    axios.get(url, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+        ...getAuthHeaders(),
+      },
+      timeout: 10000,
+    })
+  );
+  checkRateLimit(response.headers as Record<string, string>);
 
   const { commit, author } = response.data;
   const fullMessage = commit.message;
@@ -75,14 +82,17 @@ export async function getCommitDetails(repo: string, sha: string): Promise<Commi
 
 export async function getSubmoduleHash(repo: string, ref: string, path: string): Promise<string> {
   const url = `${GITHUB_API_BASE}/repos/${repo}/contents/${path}`;
-  const response = await axios.get(url, {
-    headers: {
-      Accept: 'application/vnd.github.v3+json',
-      ...getAuthHeaders(),
-    },
-    params: { ref },
-    timeout: 10000,
-  });
+  const response = await withRetry(() =>
+    axios.get(url, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+        ...getAuthHeaders(),
+      },
+      params: { ref },
+      timeout: 10000,
+    })
+  );
+  checkRateLimit(response.headers as Record<string, string>);
 
   // For submodules, GitHub returns an object with type "submodule" and sha
   if (response.data.type !== 'submodule') {
