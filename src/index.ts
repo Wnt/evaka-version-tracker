@@ -1,6 +1,6 @@
 import { instances } from './config';
 import { resolveVersionInfo } from './service/resolver';
-import { sendDeploymentEvent } from './api/datadog';
+import { sendVersionLog } from './api/datadog-logs';
 import { VersionInfo } from './types';
 
 const DRY_RUN = process.env.DRY_RUN === 'true';
@@ -14,7 +14,7 @@ async function processInstance(instance: typeof instances[0]): Promise<{ success
       console.log(`  Customization: ${versionInfo.customization.sha.substring(0, 7)} - ${versionInfo.customization.message}`);
       console.log(`  Core: ${versionInfo.core.sha.substring(0, 7)} - ${versionInfo.core.message}`);
     } else {
-      await sendDeploymentEvent(versionInfo);
+      await sendVersionLog(versionInfo);
       console.log(`✓ ${instance.name}: Sent to Datadog`);
     }
     

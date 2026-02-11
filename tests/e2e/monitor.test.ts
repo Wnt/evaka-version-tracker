@@ -81,8 +81,8 @@ describe('E2E: Monitor Full Flow', () => {
   }
 
   function setupDatadogMock(): nock.Scope {
-    return nock('https://api.datadoghq.eu')
-      .post('/api/v1/events')
+    return nock('https://http-intake.logs.datadoghq.eu')
+      .post('/api/v2/logs')
       .times(12)
       .reply(202, { status: 'ok' });
   }
@@ -143,10 +143,10 @@ describe('E2E: Monitor Full Flow', () => {
     });
 
     let capturedPayload: any = null;
-    nock('https://api.datadoghq.eu')
-      .post('/api/v1/events', (body) => {
-        if (body.title === 'Deployment detected for Espoo') {
-          capturedPayload = body;
+    nock('https://http-intake.logs.datadoghq.eu')
+      .post('/api/v2/logs', (body) => {
+        if (Array.isArray(body) && body.some(log => log.instance_name === 'Espoo')) {
+          capturedPayload = body.find(log => log.instance_name === 'Espoo');
         }
         return true;
       })
@@ -168,11 +168,11 @@ describe('E2E: Monitor Full Flow', () => {
 
     // Verify Espoo payload (Core type - same commit for custom and core)
     expect(capturedPayload).not.toBeNull();
-    expect(capturedPayload.title).toBe('Deployment detected for Espoo');
-    expect(capturedPayload.text).toContain('feat: New Espoo feature');
-    expect(capturedPayload.tags).toContain('instance:espoonvarhaiskasvatus.fi');
-    expect(capturedPayload.tags).toContain('repo_custom:espoon-voltti/evaka');
-    expect(capturedPayload.tags).toContain('repo_core:espoon-voltti/evaka');
+    expect(capturedPayload.instance_name).toBe('Espoo');
+    expect(capturedPayload.custom_message).toBe('feat: New Espoo feature');
+    expect(capturedPayload.instance_domain).toBe('espoonvarhaiskasvatus.fi');
+    expect(capturedPayload.custom_repo).toBe('espoon-voltti/evaka');
+    expect(capturedPayload.core_repo).toBe('espoon-voltti/evaka');
   });
 
   it('should send correct data for a Wrapper instance (Tampere)', async () => {
@@ -225,10 +225,10 @@ describe('E2E: Monitor Full Flow', () => {
     });
 
     let capturedPayload: any = null;
-    nock('https://api.datadoghq.eu')
-      .post('/api/v1/events', (body) => {
-        if (body.title === 'Deployment detected for Tampere') {
-          capturedPayload = body;
+    nock('https://http-intake.logs.datadoghq.eu')
+      .post('/api/v2/logs', (body) => {
+        if (Array.isArray(body) && body.some(log => log.instance_name === 'Tampere')) {
+          capturedPayload = body.find(log => log.instance_name === 'Tampere');
         }
         return true;
       })
@@ -249,14 +249,14 @@ describe('E2E: Monitor Full Flow', () => {
 
     // Verify Tampere payload (Wrapper type - different custom and core commits)
     expect(capturedPayload).not.toBeNull();
-    expect(capturedPayload.title).toBe('Deployment detected for Tampere');
-    expect(capturedPayload.text).toContain('Customization: feat: Tampere customization');
-    expect(capturedPayload.text).toContain('Core: fix: Core bug fix');
-    expect(capturedPayload.tags).toContain('instance:varhaiskasvatus.tampere.fi');
-    expect(capturedPayload.tags).toContain('repo_custom:Tampere/trevaka');
-    expect(capturedPayload.tags).toContain('repo_core:espoon-voltti/evaka');
-    expect(capturedPayload.tags).toContain(`commit_custom:${wrapperSha.substring(0, 7)}`);
-    expect(capturedPayload.tags).toContain(`commit_core:${coreSha.substring(0, 7)}`);
+    expect(capturedPayload.instance_name).toBe('Tampere');
+    expect(capturedPayload.custom_message).toBe('feat: Tampere customization');
+    expect(capturedPayload.core_message).toBe('fix: Core bug fix');
+    expect(capturedPayload.instance_domain).toBe('varhaiskasvatus.tampere.fi');
+    expect(capturedPayload.custom_repo).toBe('Tampere/trevaka');
+    expect(capturedPayload.core_repo).toBe('espoon-voltti/evaka');
+    expect(capturedPayload.custom_commit).toBe(wrapperSha.substring(0, 7));
+    expect(capturedPayload.core_commit).toBe(coreSha.substring(0, 7));
   });
 
   it('should continue processing when one instance fails', async () => {
@@ -272,9 +272,9 @@ describe('E2E: Monitor Full Flow', () => {
       setupMocksForInstance(instance, customSha, coreSha);
     });
 
-    const datadogScope = nock('https://api.datadoghq.eu')
-      .post('/api/v1/events')
-      .times(11) // Only 11 events expected
+    const datadogScope = nock('https://http-intake.logs.datadoghq.eu')
+      .post('/api/v2/logs')
+      .times(11) // Only 11 logs expected
       .reply(202, { status: 'ok' });
 
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
@@ -289,7 +289,7 @@ describe('E2E: Monitor Full Flow', () => {
     consoleSpy.mockRestore();
     consoleErrorSpy.mockRestore();
 
-    // Verify 11 Datadog events were sent (1 failed)
+    // Verify 11 Datadog logs were sent (1 failed)
     expect(datadogScope.isDone()).toBe(true);
   });
 
@@ -301,8 +301,8 @@ describe('E2E: Monitor Full Flow', () => {
       setupMocksForInstance(instance, customSha, coreSha);
     });
 
-    nock('https://api.datadoghq.eu')
-      .post('/api/v1/events')
+    nock('https://http-intake.logs.datadoghq.eu')
+      .post('/api/v2/logs')
       .times(12)
       .reply(202, { status: 'ok' });
 

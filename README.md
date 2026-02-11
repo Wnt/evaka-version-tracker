@@ -9,7 +9,7 @@ This tool monitors 12 eVaka instances, fetching:
 - Commit details (message, date, author) from GitHub
 - For wrapper repositories, the linked core eVaka version via submodule resolution
 
-Data is sent to Datadog as events for visualization and alerting.
+Data is sent to Datadog as structured logs for visualization in dashboard table widgets.
 
 ## Monitored Instances
 
@@ -154,22 +154,66 @@ on:
 
 1. After the first run, go to **Actions** tab
 2. Check the workflow run logs for any errors
-3. Verify events appear in Datadog:
-   - Go to **Events** → **Explorer** in Datadog
+3. Verify logs appear in Datadog:
+   - Go to **Logs** → **Search** in Datadog
    - Search for `source:evaka-monitor`
 
-## Datadog Events
+## Creating a Datadog Dashboard
 
-The monitor sends events to Datadog with the following structure:
+To visualize eVaka version data in a table format:
 
-- **Title:** `eVaka deployment: <Instance Name>`
-- **Tags:**
-  - `instance:<domain>`
-  - `source:evaka-monitor`
-  - `repo_custom:<repository>`
-  - `commit_custom:<short_hash>`
-  - `repo_core:espoon-voltti/evaka`
-  - `commit_core:<short_hash>`
+### Step 1: Create a New Dashboard
+
+1. Go to **Dashboards** → **New Dashboard** in Datadog
+2. Choose **New Dashboard** (not Screenboard)
+3. Name it "eVaka Version Monitor"
+
+### Step 2: Add a Table Widget
+
+1. Click **Add Widgets** and select **Table**
+2. Configure the data source:
+   - **Data Source**: Logs
+   - **Query**: `source:evaka-monitor`
+3. Set the grouping:
+   - **Group By**: `@instance_name`
+
+### Step 3: Configure Columns
+
+Add the following columns to display version information:
+
+| Column | Field |
+|--------|-------|
+| Instance Name | `@instance_name` |
+| Custom Commit | `@custom_commit` |
+| Custom Date | `@custom_date` |
+| Custom Message | `@custom_message` |
+| Core Commit | `@core_commit` |
+| Core Date | `@core_date` |
+
+### Step 4: Save the Dashboard
+
+1. Adjust column widths as needed
+2. Click **Save** to preserve your dashboard configuration
+
+## Datadog Logs
+
+The monitor sends structured logs to Datadog with the following attributes:
+
+- **ddsource:** `evaka-monitor`
+- **service:** `evaka-version-monitor`
+- **Attributes:**
+  - `instance_name` - Name of the eVaka instance
+  - `instance_domain` - Domain of the instance
+  - `custom_repo` - Customization repository
+  - `custom_commit` - Customization commit hash (7 chars)
+  - `custom_date` - Customization commit date
+  - `custom_message` - Customization commit message
+  - `custom_author` - Customization commit author
+  - `core_repo` - Core repository (espoon-voltti/evaka)
+  - `core_commit` - Core commit hash (7 chars)
+  - `core_date` - Core commit date
+  - `core_message` - Core commit message
+  - `core_author` - Core commit author
 
 ## Environment Variables
 
@@ -185,17 +229,18 @@ The monitor sends events to Datadog with the following structure:
 ```
 ├── src/
 │   ├── api/
-│   │   ├── datadog.ts    # Datadog event submission
-│   │   ├── github.ts     # GitHub API client
-│   │   └── status.ts     # Instance version fetcher
+│   │   ├── datadog.ts       # Datadog event submission (legacy)
+│   │   ├── datadog-logs.ts  # Datadog logs submission
+│   │   ├── github.ts        # GitHub API client
+│   │   └── status.ts        # Instance version fetcher
 │   ├── service/
-│   │   └── resolver.ts   # Version resolution logic
-│   ├── config.ts         # Instance configuration
-│   ├── types.ts          # TypeScript interfaces
-│   └── index.ts          # Main entry point
-├── tests/                # Test suites
-├── specs/                # Specification documents
-└── .github/workflows/    # GitHub Actions workflow
+│   │   └── resolver.ts      # Version resolution logic
+│   ├── config.ts            # Instance configuration
+│   ├── types.ts             # TypeScript interfaces
+│   └── index.ts             # Main entry point
+├── tests/                   # Test suites
+├── specs/                   # Specification documents
+└── .github/workflows/       # GitHub Actions workflow
 ```
 
 ## License
