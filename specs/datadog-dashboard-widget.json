@@ -24,7 +24,7 @@
                             "sort": {
                                 "aggregation": "max",
                                 "metric": "@core_age_days",
-                                "order": "desc"
+                                "order": "asc"
                             }
                         },
                         {

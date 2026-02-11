@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { VersionInfo } from '../types';
+import { cleanCommitMessage } from '../utils/message-cleaner';
 
 export interface DatadogLogEntry {
   ddsource: string;
@@ -64,14 +65,14 @@ export function buildLogEntry(versionInfo: VersionInfo): DatadogLogEntry {
     custom_repo: instance.repository,
     custom_commit: customization.sha.substring(0, 7),
     custom_date: customization.date,
-    custom_message: customization.message,
+    custom_message: cleanCommitMessage(customization.message),
     custom_author: customization.author,
     custom_age: formatAge(customization.date),
     custom_age_days: getAgeDays(customization.date),
     core_repo: 'espoon-voltti/evaka',
     core_commit: core.sha.substring(0, 7),
     core_date: core.date,
-    core_message: core.message,
+    core_message: cleanCommitMessage(core.message),
     core_author: core.author,
     core_age: formatAge(core.date),
     core_age_days: getAgeDays(core.date),
