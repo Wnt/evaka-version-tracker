@@ -19,7 +19,7 @@ Initialize a TypeScript project with Jest for testing and Nock for HTTP mocking.
     *   Run `npm test` on a sample test file to confirm the test harness works.
 *   **Status**: Completed - All dependencies installed, configs created, sample test passing.
 
-## Step 2: Configuration & Data Models
+## Step 2: Configuration & Data Models ✅ DONE
 Define the static configuration for the 12 eVaka instances and the necessary TypeScript interfaces.
 
 *   **Actions**:
@@ -28,6 +28,7 @@ Define the static configuration for the 12 eVaka instances and the necessary Typ
 *   **Verification**:
     *   Create a temporary script `src/verify-config.ts` that imports the config and prints the count of instances and checks one specific entry (e.g., Espoo).
     *   Run: `npx ts-node src/verify-config.ts` -> Expect output "12 instances loaded".
+*   **Status**: Completed - types.ts, config.ts, and verify-config.ts created. Verification passed: "12 instances loaded".
 
 ## Step 3: Instance Status Fetcher
 Implement the logic to query the `/api/citizen/auth/status` endpoint.
